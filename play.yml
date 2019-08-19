@@ -1,0 +1,41 @@
+---
+- hosts: slave
+  tasks:
+    - name: install the latest version of Apache
+      yum:
+        name: httpd
+        state: latest
+
+    - name: install the Java 
+      raw: yum install java-1.8.0-openjdk -y
+
+    - name: install the epel-repo
+      raw: yum install epel-release -y
+      
+    - name: Install the tomcat
+      yum:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - tomcat
+        - tomcat-webapps
+
+    - name: Start service httpd and tomcat
+      service:
+        name: "{{ item }}"
+        state: started
+      with_items:
+         - httpd
+         - tomcat
+
+    - name: Enable MS SQL Repo
+      command: yum localinstall https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm -y
+
+    - name: Install My SQL
+      raw: yum install mysql-community-server -y
+
+    - name: Start service httpd and tomcat
+      service:
+        name: mysqld
+        state: started
+
